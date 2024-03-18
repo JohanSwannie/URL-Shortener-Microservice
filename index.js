@@ -70,7 +70,7 @@ app.post(
                 resObject["short_url"] = savedUrl.shortUrl;
                 res.json(resObject);
               } else {
-                console.log("Short URL ERROR");
+                res.json("Short URL ERROR");
               }
             }
           );
@@ -79,8 +79,15 @@ app.post(
   }
 );
 
-app.get("/api/hello", function (req, res) {
-  res.json({ greeting: "hello API" });
+app.get("/api/shorturl/:urlNumber", (req, res) => {
+  let inputUrlNumber = req.params.urlNumber;
+  Url.findOne({ shortUrl: inputUrlNumber }, (error, result) => {
+    if (!error && result != undefined) {
+      res.redirect(result.longUrl);
+    } else {
+      res.json("URL not found");
+    }
+  });
 });
 
 app.listen(port, function () {
