@@ -41,7 +41,7 @@ let bodyParser = require("body-parser");
 let resObject = {};
 
 app.post(
-  "/api/shorturl",
+  "/api/shorturl/new",
   bodyParser.urlencoded({ extended: false }),
   (req, res) => {
     let inputLongUrl = req.body["url"];
