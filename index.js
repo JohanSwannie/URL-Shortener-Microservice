@@ -45,18 +45,23 @@ app.post(
   bodyParser.urlencoded({ extended: false }),
   (req, res) => {
     let inputLongUrl = req.body["url"];
+    let urlRegex = new RegExp(
+      /[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)/gi
+    );
+    if (!inputLongUrl.match(urlRegex)) {
+      return res.json({ error: "Invalid URL" });
+    }
     resObject["original_url"] = inputLongUrl;
-    res.json(resObject);
     let inputShortUrl = 1;
     Url.findOne({})
       .sort({ shortUrl: "desc" })
       .exec((error, result) => {
-        if (!error && result !== undefined) {
+        if (!error && result != undefined) {
           inputShortUrl = result.shortUrl + 1;
         }
         if (!error) {
           Url.findOneAndUpdate(
-            // { longUrl: inputLongUrl },
+            { longUrl: inputLongUrl },
             { longUrl: inputLongUrl, shortUrl: inputShortUrl },
             { new: true, upsert: true },
             (error, savedUrl) => {
