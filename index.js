@@ -44,11 +44,32 @@ app.post(
   "/api/shorturl",
   bodyParser.urlencoded({ extended: false }),
   (req, res) => {
-    let inputUrl = req.body["url"];
-    resObject["original_url"] = inputUrl;
+    let inputLongUrl = req.body["url"];
+    resObject["original_url"] = inputLongUrl;
     res.json(resObject);
+    let inputShortUrl = 1;
+    Url.findOne({})
+      .sort({ shortUrl: "desc" })
+      .exec((error, result) => {
+        if (!error && result != undefined) {
+          inputShortUrl = result.shortUrl + 1;
+        }
+        if (!error) {
+          Url.findOneAndUpdate(
+            { longUrl: inputLongUrl },
+            { longUrl: inputLongUrl, shortUrl: inputShortUrl },
+            { new: true, upsert: true },
+            (error, savedUrl) => {
+              if (!error) {
+                resObject["short_url"] = savedUrl.shortUrl;
+              }
+            }
+          );
+        }
+      });
   }
 );
+
 app.get("/api/hello", function (req, res) {
   res.json({ greeting: "hello API" });
 });
@@ -56,3 +77,7 @@ app.get("/api/hello", function (req, res) {
 app.listen(port, function () {
   console.log(`Listening on port ${port}`);
 });
+
+console.log("*************************************************************");
+console.log("********************  THE END OF THE PROGRAM  ***************");
+console.log("*************************************************************");
