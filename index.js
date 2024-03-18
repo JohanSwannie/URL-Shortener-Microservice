@@ -51,17 +51,20 @@ app.post(
     Url.findOne({})
       .sort({ shortUrl: "desc" })
       .exec((error, result) => {
-        if (!error && result != undefined) {
+        if (!error && result !== undefined) {
           inputShortUrl = result.shortUrl + 1;
         }
         if (!error) {
           Url.findOneAndUpdate(
-            { longUrl: inputLongUrl },
+            // { longUrl: inputLongUrl },
             { longUrl: inputLongUrl, shortUrl: inputShortUrl },
             { new: true, upsert: true },
             (error, savedUrl) => {
               if (!error) {
                 resObject["short_url"] = savedUrl.shortUrl;
+                res.json(resObject);
+              } else {
+                console.log("Short URL ERROR");
               }
             }
           );
