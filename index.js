@@ -48,9 +48,7 @@ app.post(
     let urlRegex = new RegExp(
       /[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)/gi
     );
-    if (!inputLongUrl.match(urlRegex)) {
-      res.json({ error: "Invalid URL" });
-    } else {
+    if (inputLongUrl.match(urlRegex)) {
       resObject["original_url"] = inputLongUrl;
       let inputShortUrl = 1;
       Url.findOne({})
@@ -75,6 +73,8 @@ app.post(
             );
           }
         });
+    } else {
+      res.json({ error: "Invalid URL" });
     }
   }
 );
