@@ -38,6 +38,21 @@ let Url = mongoose.model("Url", urlSchema);
 
 let bodyParser = require("body-parser");
 
+app.get(
+  "/api/shorturl",
+  bodyParser.urlencoded({ extended: false }),
+  (req, res) => {
+    let inputUrl = req.body["url"];
+    let urlRegex = new RegExp(
+      /[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)/gi
+    );
+    if (!inputUrl.match(urlRegex)) {
+      res.json({ error: "Invalid URL" });
+      return;
+    }
+  }
+);
+
 let resObject = {};
 
 app.post(
@@ -45,37 +60,30 @@ app.post(
   bodyParser.urlencoded({ extended: false }),
   (req, res) => {
     let inputLongUrl = req.body["url"];
-    let urlRegex = new RegExp(
-      /[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)/gi
-    );
-    if (inputLongUrl.match(urlRegex)) {
-      resObject["original_url"] = inputLongUrl;
-      let inputShortUrl = 1;
-      Url.findOne({})
-        .sort({ shortUrl: "desc" })
-        .exec((error, result) => {
-          if (!error && result != undefined) {
-            inputShortUrl = result.shortUrl + 1;
-          }
-          if (!error) {
-            Url.findOneAndUpdate(
-              { longUrl: inputLongUrl },
-              { longUrl: inputLongUrl, shortUrl: inputShortUrl },
-              { new: true, upsert: true },
-              (error, savedUrl) => {
-                if (!error) {
-                  resObject["short_url"] = savedUrl.shortUrl;
-                  res.json(resObject);
-                } else {
-                  res.json("Short URL ERROR");
-                }
+    resObject["original_url"] = inputLongUrl;
+    let inputShortUrl = 1;
+    Url.findOne({})
+      .sort({ shortUrl: "desc" })
+      .exec((error, result) => {
+        if (!error && result != undefined) {
+          inputShortUrl = result.shortUrl + 1;
+        }
+        if (!error) {
+          Url.findOneAndUpdate(
+            { longUrl: inputLongUrl },
+            { longUrl: inputLongUrl, shortUrl: inputShortUrl },
+            { new: true, upsert: true },
+            (error, savedUrl) => {
+              if (!error) {
+                resObject["short_url"] = savedUrl.shortUrl;
+                res.json(resObject);
+              } else {
+                res.json("Short URL ERROR");
               }
-            );
-          }
-        });
-    } else {
-      res.json({ error: "Invalid URL" });
-    }
+            }
+          );
+        }
+      });
   }
 );
 
