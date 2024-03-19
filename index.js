@@ -36,6 +36,10 @@ const urlSchema = new Schema({
 
 let Url = mongoose.model("Url", urlSchema);
 
+let urlRegex = new RegExp(
+  /[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)/gi
+);
+
 let bodyParser = require("body-parser");
 
 let resObject = {};
@@ -45,9 +49,6 @@ app.post(
   bodyParser.urlencoded({ extended: false }),
   (req, res) => {
     let inputLongUrl = req.body["url"];
-    let urlRegex = new RegExp(
-      /[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)/gi
-    );
     if (!inputLongUrl.match(urlRegex)) {
       res.json({ error: "Invalid URL" });
       return;
