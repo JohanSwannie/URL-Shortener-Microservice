@@ -73,8 +73,6 @@ app.post(
             );
           }
         });
-    } else {
-      res.json({ error: "Invalid URL" });
     }
   }
 );
