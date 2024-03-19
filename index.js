@@ -2,7 +2,7 @@ require("dotenv").config();
 const express = require("express");
 const cors = require("cors");
 const mongoose = require("mongoose");
-const dns = require("node-dns");
+const bodyParser = require("body-parser");
 const app = express();
 
 mongoose
@@ -37,8 +37,6 @@ const urlSchema = new Schema({
 let Url = mongoose.model("Url", urlSchema);
 
 app.use(bodyParser.urlencoded({ extended: false }));
-
-let resObject = {};
 
 app.post("/api/shorturl/new", async (req, res) => {
   const inputUrlLong = req.body.url_input;
