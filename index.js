@@ -48,11 +48,19 @@ app.post(
   "/api/shorturl",
   bodyParser.urlencoded({ extended: false }),
   (req, res) => {
-    let inputLongUrl = req.body["url"];
-    if (!inputLongUrl.match(urlRegex)) {
+    let inputUrl = req.body["url"];
+    if (!inputUrl.match(urlRegex)) {
       res.json({ error: "Invalid URL" });
       return;
     }
+  }
+);
+
+app.post(
+  "/api/shorturl",
+  bodyParser.urlencoded({ extended: false }),
+  (req, res) => {
+    let inputLongUrl = req.body["url"];
     resObject["original_url"] = inputLongUrl;
     let inputShortUrl = 1;
     Url.findOne({})
