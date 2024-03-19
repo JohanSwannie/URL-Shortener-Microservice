@@ -36,13 +36,13 @@ const urlSchema = new Schema({
 
 let Url = mongoose.model("Url", urlSchema);
 
-let urlRegex = new RegExp(
-  /[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)/gi
-);
-
 let bodyParser = require("body-parser");
 
 let resObject = {};
+
+let urlRegex = new RegExp(
+  /[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)/gi
+);
 
 app.post(
   "/api/shorturl",
