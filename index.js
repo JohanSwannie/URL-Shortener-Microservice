@@ -40,27 +40,19 @@ let bodyParser = require("body-parser");
 
 let resObject = {};
 
-let urlRegex = new RegExp(
-  /[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)/gi
-);
-
-app.post(
-  "/api/shorturl",
-  bodyParser.urlencoded({ extended: false }),
-  (req, res) => {
-    let inputUrl = req.body["url"];
-    if (!inputUrl.match(urlRegex)) {
-      res.json({ error: "Invalid URL" });
-      return;
-    }
-  }
-);
-
 app.post(
   "/api/shorturl",
   bodyParser.urlencoded({ extended: false }),
   (req, res) => {
     let inputLongUrl = req.body["url"];
+    let urlRegex = new RegExp(
+      /[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)/gi
+    );
+    res.json({ error: "Invalid URL" });
+    if (!inputLongUrl.match(urlRegex)) {
+      res.json({ error: "Invalid URL" });
+      return;
+    }
     resObject["original_url"] = inputLongUrl;
     let inputShortUrl = 1;
     Url.findOne({})
