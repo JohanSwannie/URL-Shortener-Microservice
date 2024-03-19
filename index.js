@@ -3,6 +3,7 @@ const express = require("express");
 const cors = require("cors");
 const mongoose = require("mongoose");
 const bodyParser = require("body-parser");
+const validUrl = require("valid-url");
 const app = express();
 
 mongoose
@@ -31,34 +32,48 @@ const Schema = mongoose.Schema;
 
 const urlSchema = new Schema({
   longUrl: { type: String, required: true },
-  shortUrl: Number,
+  shortUrl: String,
 });
 
 let Url = mongoose.model("Url", urlSchema);
 
-app.use(bodyParser.urlencoded({ extended: false }));
+let resObject = {};
 
-app.post("/api/shorturl/new", async (req, res) => {
-  const inputUrlLong = req.body.url_input;
-  const shortUrlCode = shortId.generate();
-  if (!validUrl.isWebUri(inputUrlLong)) {
-    res.json({ error: "Invalid URL" });
-  } else {
-    try {
-      let findUrl = await Url.findOne({ longUrl: inputUrlLong });
-      if (findUrl) {
-        res.json({ longUrl: findUrl.longUrl, shortUrl: findUrl.shortUrl });
-      } else {
-        findUrl = new Url({ longUrl: inputUrlLong, shortUrl: shortUrlCode });
-        await findUrl.save();
-        res.json({ longUrl: findUrl.longUrl, shortUrl: findUrl.shortUrl });
-      }
-    } catch (error) {
-      console.error(error);
-      res.status(500).json("Server error");
+app.post(
+  "/api/shorturl",
+  bodyParser.urlencoded({ extended: false }),
+  (req, res) => {
+    let inputLongUrl = req.body["url"];
+    if (!validUrl.isWebUri(inputLongUrl)) {
+      res.json({ error: "Invalid URL" });
+    } else {
+      resObject["original_url"] = inputLongUrl;
+      let inputShortUrl = 1;
+      Url.findOne({})
+        .sort({ shortUrl: "desc" })
+        .exec((error, result) => {
+          if (!error && result != undefined) {
+            inputShortUrl = result.shortUrl + 1;
+          }
+          if (!error) {
+            Url.findOneAndUpdate(
+              { longUrl: inputLongUrl },
+              { longUrl: inputLongUrl, shortUrl: inputShortUrl },
+              { new: true, upsert: true },
+              (error, savedUrl) => {
+                if (!error) {
+                  resObject["short_url"] = savedUrl.shortUrl;
+                  res.json(resObject);
+                } else {
+                  res.json("Short URL ERROR");
+                }
+              }
+            );
+          }
+        });
     }
   }
-});
+);
 
 app.get("/api/shorturl/:urlNumber", (req, res) => {
   let inputUrlNumber = req.params.urlNumber;
