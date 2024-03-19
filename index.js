@@ -50,32 +50,32 @@ app.post(
     );
     if (!inputLongUrl.match(urlRegex)) {
       res.json({ error: "Invalid URL" });
-      return;
-    }
-    resObject["original_url"] = inputLongUrl;
-    let inputShortUrl = 1;
-    Url.findOne({})
-      .sort({ shortUrl: "desc" })
-      .exec((error, result) => {
-        if (!error && result != undefined) {
-          inputShortUrl = result.shortUrl + 1;
-        }
-        if (!error) {
-          Url.findOneAndUpdate(
-            { longUrl: inputLongUrl },
-            { longUrl: inputLongUrl, shortUrl: inputShortUrl },
-            { new: true, upsert: true },
-            (error, savedUrl) => {
-              if (!error) {
-                resObject["short_url"] = savedUrl.shortUrl;
-                res.json(resObject);
-              } else {
-                res.json("Short URL ERROR");
+    } else {
+      resObject["original_url"] = inputLongUrl;
+      let inputShortUrl = 1;
+      Url.findOne({})
+        .sort({ shortUrl: "desc" })
+        .exec((error, result) => {
+          if (!error && result != undefined) {
+            inputShortUrl = result.shortUrl + 1;
+          }
+          if (!error) {
+            Url.findOneAndUpdate(
+              { longUrl: inputLongUrl },
+              { longUrl: inputLongUrl, shortUrl: inputShortUrl },
+              { new: true, upsert: true },
+              (error, savedUrl) => {
+                if (!error) {
+                  resObject["short_url"] = savedUrl.shortUrl;
+                  res.json(resObject);
+                } else {
+                  res.json("Short URL ERROR");
+                }
               }
-            }
-          );
-        }
-      });
+            );
+          }
+        });
+    }
   }
 );
 
