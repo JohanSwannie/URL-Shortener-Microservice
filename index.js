@@ -1,7 +1,7 @@
 require("dotenv").config();
 const express = require("express");
 const cors = require("cors");
-const mongoose = require("mongoose");
+const { Schema, model, mongoose } = require("mongoose");
 const bodyParser = require("body-parser");
 const validUrl = require("valid-url");
 
@@ -29,14 +29,12 @@ app.get("/", function (req, res) {
   res.sendFile(process.cwd() + "/views/index.html");
 });
 
-const Schema = mongoose.Schema;
-
 const urlSchema = new Schema({
   longUrl: { type: String, required: true },
-  shortUrl: String,
+  shortUrl: Number,
 });
 
-let Url = mongoose.model("Url", urlSchema);
+let Url = model("Url", urlSchema);
 
 let resObject = {};
 
