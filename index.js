@@ -7,11 +7,12 @@ const validUrl = require("valid-url");
 
 const app = express();
 
-mongoose
-  .connect(process.env.MONGO_URI, {
-    useNewUrlParser: true,
-    useUnifiedTopology: true,
-  })
+const db = mongoose;
+
+db.connect(process.env.MONGO_URI, {
+  useNewUrlParser: true,
+  useUnifiedTopology: true,
+})
   .then(() => {
     console.log("Successfully connected to the database");
   })
